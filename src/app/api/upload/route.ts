@@ -83,9 +83,8 @@ export async function POST(request: NextRequest) {
     // Update database with the new URL
     if (fileType === 'cv') {
       // Get the active content record
-      const activeContent = await db.query.content.findFirst({
-        where: eq(content.isActive, true),
-      });
+      const activeContentResult = await db.select().from(content).where(eq(content.isActive, true)).limit(1);
+      const activeContent = activeContentResult[0];
 
       if (activeContent) {
         await db.update(content)
@@ -97,9 +96,8 @@ export async function POST(request: NextRequest) {
       }
     } else if (fileType === 'image') {
       // Update hero image in database
-      const activeContent = await db.query.content.findFirst({
-        where: eq(content.isActive, true),
-      });
+      const activeContentResult = await db.select().from(content).where(eq(content.isActive, true)).limit(1);
+      const activeContent = activeContentResult[0];
 
       if (activeContent) {
         await db.update(content)
