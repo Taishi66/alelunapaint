@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { writeFile, mkdir } from 'fs/promises';
-import { join } from 'path';
+import { put } from '@vercel/blob';
 import jwt from 'jsonwebtoken';
+import { db } from '@/lib/db/connection';
+import { content } from '@/lib/db/schema';
+import { eq } from 'drizzle-orm';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'alelunapaint-super-secure-jwt-secret-key-2024-development';
 
@@ -49,12 +51,12 @@ export async function POST(request: NextRequest) {
       allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
       maxSize = 5 * 1024 * 1024; // 5MB
       const ext = file.name.split('.').pop() || 'jpg';
-      fileName = `hero.${ext}`;
+      fileName = `hero-${Date.now()}.${ext}`;
     } else {
       // PDF upload (for CV)
       allowedTypes = ['application/pdf'];
       maxSize = 10 * 1024 * 1024; // 10MB
-      fileName = 'cv.pdf';
+      fileName = `cv-${Date.now()}.pdf`;
     }
 
     // Validate file type
@@ -73,20 +75,46 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
+    // Upload to Vercel Blob
+    const blob = await put(fileName, file, {
+      access: 'public',
+    });
 
-    // Save to public directory
-    const uploadsDir = join(process.cwd(), 'public', 'uploads');
-    await mkdir(uploadsDir, { recursive: true });
+    // Update database with the new URL
+    if (fileType === 'cv') {
+      // Get the active content record
+      const activeContent = await db.query.content.findFirst({
+        where: eq(content.isActive, true),
+      });
 
-    const filePath = join(uploadsDir, fileName);
-    await writeFile(filePath, buffer);
+      if (activeContent) {
+        await db.update(content)
+          .set({
+            contactCvPath: blob.url,
+            updatedAt: new Date()
+          })
+          .where(eq(content.id, activeContent.id));
+      }
+    } else if (fileType === 'image') {
+      // Update hero image in database
+      const activeContent = await db.query.content.findFirst({
+        where: eq(content.isActive, true),
+      });
+
+      if (activeContent) {
+        await db.update(content)
+          .set({
+            heroImage: blob.url,
+            updatedAt: new Date()
+          })
+          .where(eq(content.id, activeContent.id));
+      }
+    }
 
     return NextResponse.json({
       success: true,
       message: 'File uploaded successfully',
-      data: { path: `/uploads/${fileName}` }
+      data: { path: blob.url }
     });
   } catch (error) {
     console.error('Upload error:', error);
