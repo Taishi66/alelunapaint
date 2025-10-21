@@ -49,13 +49,13 @@ export async function POST(request: NextRequest) {
     if (fileType === 'image') {
       // Image upload (for hero section)
       allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
-      maxSize = 5 * 1024 * 1024; // 5MB
+      maxSize = 4 * 1024 * 1024; // 4MB
       const ext = file.name.split('.').pop() || 'jpg';
       fileName = `hero-${Date.now()}.${ext}`;
     } else {
       // PDF upload (for CV)
       allowedTypes = ['application/pdf'];
-      maxSize = 10 * 1024 * 1024; // 10MB
+      maxSize = 4 * 1024 * 1024; // 4MB
       fileName = `cv-${Date.now()}.pdf`;
     }
 

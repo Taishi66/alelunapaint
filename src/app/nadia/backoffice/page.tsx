@@ -587,8 +587,8 @@ export default function BackOffice() {
             return;
         }
 
-        if (file.size > 5 * 1024 * 1024) {
-            setImageUploadStatus('File size must be less than 5MB');
+        if (file.size > 4 * 1024 * 1024) {
+            setImageUploadStatus('File size must be less than 4MB');
             return;
         }
 
@@ -646,8 +646,8 @@ export default function BackOffice() {
             return;
         }
 
-        if (file.size > 10 * 1024 * 1024) {
-            setCvUploadStatus('File size must be less than 10MB');
+        if (file.size > 4 * 1024 * 1024) {
+            setCvUploadStatus('File size must be less than 4MB');
             return;
         }
 
@@ -813,7 +813,7 @@ export default function BackOffice() {
                                         </p>
                                     )}
                                     <p className="text-xs text-brand-cream/60">
-                                        Upload an image (JPG, PNG, WebP) - max 5MB. The image will be saved and used for the hero section.
+                                        Upload an image (JPG, PNG, WebP) - max 4MB. The image will be saved and used for the hero section.
                                     </p>
                                 </div>
 
@@ -2251,7 +2251,7 @@ export default function BackOffice() {
                                         Current CV: {textContent.contactCvPath || '/cv.pdf'}
                                     </p>
                                     <p className="text-xs text-brand-cream/60">
-                                        Upload a PDF file (max 10MB). The file will be saved as cv.pdf.
+                                        Upload a PDF file (max 4MB). The file will be saved as cv.pdf.
                                     </p>
                                 </div>
                             </div>
