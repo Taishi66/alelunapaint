@@ -1,4 +1,10 @@
+"use client";
+
+import { useTextContent } from '@/lib/TextContentContext';
+
 export default function Footer() {
+    const { textContent } = useTextContent();
+
     return (
         <footer className="bg-brand-deep text-brand-cream py-12 border-t border-brand-gold/20" role="contentinfo">
             <div className="container mx-auto px-6">
@@ -27,21 +33,21 @@ export default function Footer() {
                         <h4 className="font-medium text-brand-cream mb-4">Get in Touch</h4>
                         <div className="space-y-2 text-sm">
                             <a
-                                href="mailto:nadia.luna@email.com"
+                                href={`mailto:${textContent.contactEmail || 'nadia.luna@email.com'}`}
                                 className="block text-brand-cream/80 hover:text-brand-gold transition-colors"
                                 aria-label="Email Nadia Luna"
                             >
-                                nadia.luna@email.com
+                                {textContent.contactEmail || 'nadia.luna@email.com'}
                             </a>
                             <a
-                                href="tel:+33123456789"
+                                href={`tel:${textContent.contactPhone?.replace(/\s/g, '') || '+33123456789'}`}
                                 className="block text-brand-cream/80 hover:text-brand-gold transition-colors"
                                 aria-label="Call Nadia Luna"
                             >
-                                +33 1 23 45 67 89
+                                {textContent.contactPhone || '+33 1 23 45 67 89'}
                             </a>
                             <a
-                                href="https://linkedin.com/in/nadialuna"
+                                href={textContent.contactLinkedin || 'https://linkedin.com/in/nadialuna'}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="block text-brand-cream/80 hover:text-brand-gold transition-colors"
