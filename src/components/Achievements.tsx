@@ -1,15 +1,18 @@
 "use client";
 
-import { useTextContent } from '@/lib/TextContentContext';
+import { useTextContent } from "@/lib/TextContentContext";
 
 export default function Achievements() {
   const { textContent } = useTextContent();
 
   // Default icons if none specified
-  const defaultIcons = ['📈', '🎯', '🏆', '💎'];
+  const defaultIcons = ["🏆", "🎯", "📈", "💎"];
 
   return (
-    <section id="achievements" className="py-16 sm:py-20 md:py-24 lg:py-32 bg-brand-deep text-brand-cream scroll-mt-20 relative overflow-hidden">
+    <section
+      id="achievements"
+      className="py-16 sm:py-20 md:py-24 lg:py-32 bg-brand-deep text-brand-cream scroll-mt-20 relative overflow-hidden"
+    >
       {/* Background elements */}
       <div className="absolute inset-0">
         <div className="absolute top-20 right-1/4 w-72 h-72 bg-brand-gold/5 rounded-full blur-3xl"></div>
@@ -24,45 +27,52 @@ export default function Achievements() {
             <span className="w-2 h-2 bg-brand-gold rounded-full mr-2 relative z-10 group-hover:scale-125 transition-transform duration-300"></span>
             Key Achievements
           </div>
-          <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl lg:text-6xl mb-4 sm:mb-6">
+          <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl lg:text-6xl mb-4 sm:mb-6 text-brand-cream">
             {textContent.achievementsTitle}
           </h2>
           <div className="w-16 sm:w-20 md:w-24 h-1 bg-brand-gold mx-auto"></div>
         </div>
 
-        {/* Achievements grid - responsive layout */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-8 md:gap-10 max-w-7xl mx-auto">
-          {textContent.achievements.map((achievement, index) => (
-            <div
-              key={index}
-              className="group relative bg-gradient-to-br from-brand-cream/5 to-brand-gold/5 backdrop-blur-sm rounded-3xl p-6 sm:p-8 md:p-10 border border-brand-gold/20 hover:border-brand-gold/60 transition-all duration-500 hover:transform hover:-translate-y-2 hover:scale-[1.02] shadow-xl hover:shadow-2xl overflow-hidden"
-            >
-              {/* Shimmer effect on hover */}
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-brand-gold/10 to-transparent translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000"></div>
-              {/* Icon */}
-              <div className="text-4xl sm:text-5xl md:text-6xl mb-4 sm:mb-6 opacity-80 group-hover:scale-110 transition-transform duration-300">
-                {achievement.icon || defaultIcons[index] || '⭐'}
+        {/* Achievements grid - centered with max 2 columns for better readability */}
+        <div className="flex justify-center">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 md:gap-10 max-w-5xl w-full">
+            {textContent.achievements.map((achievement, index) => (
+              <div
+                key={index}
+                className="group relative bg-gradient-to-br from-brand-cream/5 to-brand-gold/5 backdrop-blur-sm rounded-2xl p-8 sm:p-10 border border-brand-gold/20 hover:border-brand-gold/50 transition-all duration-500 hover:transform hover:-translate-y-1 shadow-lg hover:shadow-xl overflow-hidden"
+              >
+                {/* Shimmer effect on hover */}
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-brand-gold/10 to-transparent translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000"></div>
+
+                {/* Content wrapper */}
+                <div className="relative z-10">
+                  {/* Icon and Metric Row */}
+                  <div className="flex items-center gap-4 mb-6">
+                    {/* Icon */}
+                    <div className="text-5xl group-hover:scale-110 transition-transform duration-300 flex-shrink-0">
+                      {achievement.icon || defaultIcons[index] || "⭐"}
+                    </div>
+
+                    {/* Metric */}
+                    <div className="font-serif text-4xl sm:text-5xl md:text-6xl font-bold text-brand-gold leading-none">
+                      {achievement.metric}
+                    </div>
+                  </div>
+
+                  {/* Description */}
+                  <p className="text-brand-cream/90 text-base sm:text-lg leading-relaxed">
+                    {achievement.description}
+                  </p>
+
+                  {/* Decorative accent */}
+                  <div className="mt-6 h-1 w-16 bg-gradient-to-r from-brand-gold/50 to-transparent rounded-full"></div>
+                </div>
+
+                {/* Hover glow effect */}
+                <div className="absolute -bottom-2 -right-2 w-24 h-24 bg-brand-gold/10 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
               </div>
-
-              {/* Metric */}
-              <div className="font-serif text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-brand-gold mb-3 sm:mb-4 md:mb-6 leading-none">
-                {achievement.metric}
-              </div>
-
-              {/* Description/Context */}
-              <div className="space-y-2 sm:space-y-3">
-                <h3 className="text-base sm:text-lg md:text-xl font-semibold text-brand-cream leading-snug">
-                  {achievement.description}
-                </h3>
-
-                {/* Decorative line */}
-                <div className="h-1 w-12 bg-brand-gold/50 rounded-full"></div>
-              </div>
-
-              {/* Hover effect decoration */}
-              <div className="absolute -bottom-1 -right-1 w-20 h-20 bg-brand-gold/10 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
     </section>
