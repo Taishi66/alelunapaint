@@ -32,6 +32,17 @@ interface SoftSkill {
     icon: string;
 }
 
+interface Certification {
+    name: string;
+    issuer?: string;
+    date?: string;
+    certificateUrl?: string;
+    credentialId?: string;
+    icon?: string;
+}
+
+type CertificationOrString = string | Certification;
+
 interface StatItem {
     metric: string;
     label: string;
@@ -310,7 +321,7 @@ export default function BackOffice() {
 
     const handleTextChange = (
         field: keyof TextContent,
-        value: string | string[] | SoftSkill[] | Achievement[],
+        value: string | string[] | SoftSkill[] | Achievement[] | CertificationOrString[],
     ) => {
         setTextContent((prev) => ({
             ...prev,
@@ -1802,7 +1813,7 @@ export default function BackOffice() {
                                 <button
                                     type="button"
                                     onClick={() => {
-                                        const newCert = {
+                                        const newCert: Certification = {
                                             name: "New Certification",
                                             issuer: "",
                                             date: "",
@@ -1810,7 +1821,7 @@ export default function BackOffice() {
                                             credentialId: "",
                                             icon: ""
                                         };
-                                        handleTextChange("certifications", [...textContent.certifications, newCert]);
+                                        handleTextChange("certifications", [...textContent.certifications, newCert] as CertificationOrString[]);
                                     }}
                                     className="px-3 py-1.5 bg-brand-gold/20 hover:bg-brand-gold/30 text-brand-gold rounded-lg text-xs font-medium transition-all"
                                 >
@@ -1843,8 +1854,8 @@ export default function BackOffice() {
                                                         value={certObj.name}
                                                         onChange={(e) => {
                                                             const updated = [...textContent.certifications];
-                                                            updated[index] = { ...certObj, name: e.target.value };
-                                                            handleTextChange("certifications", updated);
+                                                            updated[index] = { ...certObj, name: e.target.value } as Certification;
+                                                            handleTextChange("certifications", updated as CertificationOrString[]);
                                                         }}
                                                         className="w-full px-3 py-2 text-sm bg-white/10 border border-white/20 text-brand-cream rounded-lg focus:ring-2 focus:ring-brand-gold"
                                                     />
@@ -1856,8 +1867,8 @@ export default function BackOffice() {
                                                         value={certObj.issuer || ''}
                                                         onChange={(e) => {
                                                             const updated = [...textContent.certifications];
-                                                            updated[index] = { ...certObj, issuer: e.target.value };
-                                                            handleTextChange("certifications", updated);
+                                                            updated[index] = { ...certObj, issuer: e.target.value } as Certification;
+                                                            handleTextChange("certifications", updated as CertificationOrString[]);
                                                         }}
                                                         placeholder="e.g., Coursera, LVMH..."
                                                         className="w-full px-3 py-2 text-sm bg-white/10 border border-white/20 text-brand-cream placeholder:text-brand-cream/40 rounded-lg focus:ring-2 focus:ring-brand-gold"
@@ -1870,8 +1881,8 @@ export default function BackOffice() {
                                                         value={certObj.date || ''}
                                                         onChange={(e) => {
                                                             const updated = [...textContent.certifications];
-                                                            updated[index] = { ...certObj, date: e.target.value };
-                                                            handleTextChange("certifications", updated);
+                                                            updated[index] = { ...certObj, date: e.target.value } as Certification;
+                                                            handleTextChange("certifications", updated as CertificationOrString[]);
                                                         }}
                                                         placeholder="e.g., January 2024"
                                                         className="w-full px-3 py-2 text-sm bg-white/10 border border-white/20 text-brand-cream placeholder:text-brand-cream/40 rounded-lg focus:ring-2 focus:ring-brand-gold"
@@ -1917,8 +1928,8 @@ export default function BackOffice() {
                                                                     const data = await response.json();
                                                                     if (data.success && data.data?.path) {
                                                                         const updated = [...textContent.certifications];
-                                                                        updated[index] = { ...certObj, certificateUrl: data.data.path };
-                                                                        handleTextChange("certifications", updated);
+                                                                        updated[index] = { ...certObj, certificateUrl: data.data.path } as Certification;
+                                                                        handleTextChange("certifications", updated as CertificationOrString[]);
                                                                         setCertificateUploadStatus(prev => ({ ...prev, [index]: 'Certificate uploaded successfully!' }));
                                                                     } else {
                                                                         setCertificateUploadStatus(prev => ({ ...prev, [index]: data.message || 'Upload failed' }));
@@ -1944,8 +1955,8 @@ export default function BackOffice() {
                                                                 type="button"
                                                                 onClick={() => {
                                                                     const updated = [...textContent.certifications];
-                                                                    updated[index] = { ...certObj, certificateUrl: '' };
-                                                                    handleTextChange("certifications", updated);
+                                                                    updated[index] = { ...certObj, certificateUrl: '' } as Certification;
+                                                                    handleTextChange("certifications", updated as CertificationOrString[]);
                                                                     setCertificateUploadStatus(prev => ({ ...prev, [index]: '' }));
                                                                 }}
                                                                 className="px-3 py-2 text-sm bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded-lg"
@@ -1970,8 +1981,8 @@ export default function BackOffice() {
                                                         value={certObj.credentialId || ''}
                                                         onChange={(e) => {
                                                             const updated = [...textContent.certifications];
-                                                            updated[index] = { ...certObj, credentialId: e.target.value };
-                                                            handleTextChange("certifications", updated);
+                                                            updated[index] = { ...certObj, credentialId: e.target.value } as Certification;
+                                                            handleTextChange("certifications", updated as CertificationOrString[]);
                                                         }}
                                                         placeholder="Optional ID"
                                                         className="w-full px-3 py-2 text-sm bg-white/10 border border-white/20 text-brand-cream placeholder:text-brand-cream/40 rounded-lg focus:ring-2 focus:ring-brand-gold"
@@ -1984,8 +1995,8 @@ export default function BackOffice() {
                                                         value={certObj.icon || ''}
                                                         onChange={(e) => {
                                                             const updated = [...textContent.certifications];
-                                                            updated[index] = { ...certObj, icon: e.target.value };
-                                                            handleTextChange("certifications", updated);
+                                                            updated[index] = { ...certObj, icon: e.target.value } as Certification;
+                                                            handleTextChange("certifications", updated as CertificationOrString[]);
                                                         }}
                                                         placeholder="🏆"
                                                         maxLength={2}

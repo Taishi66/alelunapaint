@@ -44,7 +44,6 @@ export default function Nav() {
             const experienceTop = experienceSection.offsetTop;
             const experienceBottom = experienceTop + experienceSection.offsetHeight;
             const contactTop = contactSection.offsetTop;
-            const contactBottom = contactTop + contactSection.offsetHeight;
 
             let newCurrentSection = 'Home';
 
