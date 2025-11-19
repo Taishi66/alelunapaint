@@ -5,9 +5,6 @@ import { useTextContent } from "@/lib/TextContentContext";
 export default function Achievements() {
   const { textContent } = useTextContent();
 
-  // Default icons if none specified
-  const defaultIcons = ["🏆", "🎯", "📈", "💎"];
-
   return (
     <section
       id="achievements"
@@ -48,10 +45,12 @@ export default function Achievements() {
                 <div className="relative z-10">
                   {/* Icon and Metric Row */}
                   <div className="flex items-center gap-4 mb-6">
-                    {/* Icon */}
-                    <div className="text-5xl group-hover:scale-110 transition-transform duration-300 flex-shrink-0">
-                      {achievement.icon || defaultIcons[index] || "⭐"}
-                    </div>
+                    {/* Icon - only if specified */}
+                    {achievement.icon && (
+                      <div className="text-5xl group-hover:scale-110 transition-transform duration-300 flex-shrink-0">
+                        {achievement.icon}
+                      </div>
+                    )}
 
                     {/* Metric */}
                     <div className="font-serif text-4xl sm:text-5xl md:text-6xl font-bold text-brand-gold leading-none">

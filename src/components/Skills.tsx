@@ -2,6 +2,23 @@
 
 import { useTextContent } from '@/lib/TextContentContext';
 
+// Helper function to normalize certifications (backward compatibility)
+function normalizeCertification(cert: string | { name: string; issuer?: string; date?: string; certificateUrl?: string; credentialId?: string; icon?: string }) {
+  if (typeof cert === 'string') {
+    // Old format - convert to object (no default icon)
+    return {
+      name: cert,
+      issuer: undefined,
+      date: undefined,
+      certificateUrl: undefined,
+      credentialId: undefined,
+      icon: undefined,
+    };
+  }
+  // New format - return as is
+  return cert;
+}
+
 export default function Skills() {
   const { textContent } = useTextContent();
 
@@ -89,30 +106,96 @@ export default function Skills() {
         )}
 
         {/* Certifications & Tools */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 md:gap-8 max-w-4xl mx-auto">
-          {/* Certifications */}
-          <div className="bg-brand-cream/5 backdrop-blur-sm rounded-2xl p-5 sm:p-6 md:p-8 border border-brand-gold/20">
-            <h3 className="font-serif text-lg sm:text-xl md:text-2xl text-brand-gold mb-4 sm:mb-6 flex items-center">
-              {textContent.skillsCertificationsTitle || '🏆 Certifications'}
+        <div className="max-w-6xl mx-auto mb-10 sm:mb-12 md:mb-16">
+          {/* Certifications - New Enhanced Design */}
+          <div className="mb-10 sm:mb-12 md:mb-16">
+            <h3 className="font-serif text-2xl sm:text-3xl md:text-4xl text-brand-gold mb-8 sm:mb-10 text-center flex items-center justify-center gap-3">
+              <span className="text-3xl sm:text-4xl">🏆</span>
+              <span>{(textContent.skillsCertificationsTitle || 'Certifications').replace('🏆', '').trim()}</span>
             </h3>
-            <div className="space-y-2 sm:space-y-3">
-              {textContent.certifications.map((cert, index) => (
-                <div key={index} className="flex items-center space-x-3">
-                  <div className="w-2 h-2 bg-brand-gold rounded-full flex-shrink-0"></div>
-                  <span className="text-sm md:text-base">{cert}</span>
-                </div>
-              ))}
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
+              {textContent.certifications.map((cert, index) => {
+                const normalized = normalizeCertification(cert);
+                return (
+                  <div
+                    key={index}
+                    className="group relative bg-gradient-to-br from-brand-cream/5 to-brand-gold/5 backdrop-blur-sm rounded-2xl p-5 sm:p-6 border border-brand-gold/20 hover:border-brand-gold/50 transition-all duration-500 hover:transform hover:-translate-y-1 shadow-lg hover:shadow-xl overflow-hidden flex flex-col"
+                  >
+                    {/* Shimmer effect on hover */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-brand-gold/10 to-transparent translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000"></div>
+
+                    {/* Content wrapper */}
+                    <div className="relative z-10 flex flex-col h-full">
+                      {/* Icon - if specified */}
+                      {normalized.icon && (
+                        <div className="text-3xl group-hover:scale-110 transition-transform duration-300 mb-3">
+                          {normalized.icon}
+                        </div>
+                      )}
+
+                      {/* 1. Certification name - fixed height for symmetry */}
+                      <h4 className="font-serif text-base sm:text-lg text-brand-cream mb-3 leading-snug min-h-[4.5rem] flex items-start">
+                        {normalized.name}
+                      </h4>
+
+                      {/* Decorative line separator */}
+                      <div className="h-0.5 w-12 bg-gradient-to-r from-brand-gold/50 to-transparent rounded-full mb-4"></div>
+
+                      {/* 2. Issuing organization */}
+                      <div className="text-xs sm:text-sm text-brand-cream/70 mb-4">
+                        <div className="flex items-center gap-2">
+                          <span className="text-brand-gold">•</span>
+                          <span>{normalized.issuer || 'Professional Certification'}</span>
+                        </div>
+                        {normalized.date && (
+                          <div className="flex items-center gap-2 mt-1.5">
+                            <span className="text-brand-gold">•</span>
+                            <span>{normalized.date}</span>
+                          </div>
+                        )}
+                        {normalized.credentialId && (
+                          <div className="flex items-center gap-2 mt-1.5">
+                            <span className="text-brand-gold">•</span>
+                            <span className="font-mono text-xs">{normalized.credentialId}</span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Spacer to push download button to bottom */}
+                      <div className="flex-grow"></div>
+
+                      {/* 3. Download link - always at bottom */}
+                      {normalized.certificateUrl && (
+                        <a
+                          href={normalized.certificateUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-brand-gold/20 hover:bg-brand-gold/30 rounded-lg text-brand-gold text-sm font-medium transition-all duration-300 hover:scale-105 border border-brand-gold/30 hover:border-brand-gold/50"
+                        >
+                          <span className="text-base">📥</span>
+                          <span>Download Certificate</span>
+                        </a>
+                      )}
+                    </div>
+
+                    {/* Hover glow effect */}
+                    <div className="absolute -bottom-2 -right-2 w-24 h-24 bg-brand-gold/10 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                  </div>
+                );
+              })}
             </div>
           </div>
 
           {/* Tools & Technologies */}
-          <div className="bg-brand-cream/5 backdrop-blur-sm rounded-2xl p-5 sm:p-6 md:p-8 border border-brand-gold/20">
-            <h3 className="font-serif text-lg sm:text-xl md:text-2xl text-brand-gold mb-4 sm:mb-6 flex items-center">
-              {textContent.skillsToolsTitle || '🛠️ Tools & Platforms'}
+          <div className="bg-brand-cream/5 backdrop-blur-sm rounded-2xl p-6 sm:p-8 md:p-10 border border-brand-gold/20">
+            <h3 className="font-serif text-xl sm:text-2xl md:text-3xl text-brand-gold mb-6 sm:mb-8 text-center flex items-center justify-center gap-3">
+              <span className="text-3xl sm:text-4xl">🛠️</span>
+              <span>{(textContent.skillsToolsTitle || 'Tools & Platforms').replace('🛠️', '').replace('🔧', '').trim()}</span>
             </h3>
-            <div className="grid grid-cols-2 gap-2 sm:gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4">
               {textContent.tools.map((tool, index) => (
-                <div key={index} className="bg-brand-gold/10 rounded-lg px-2 sm:px-3 py-1.5 sm:py-2 text-center text-sm font-medium">
+                <div key={index} className="bg-brand-gold/10 hover:bg-brand-gold/20 rounded-lg px-3 sm:px-4 py-2 sm:py-3 text-center text-sm font-medium transition-all duration-300 hover:scale-105">
                   {tool}
                 </div>
               ))}

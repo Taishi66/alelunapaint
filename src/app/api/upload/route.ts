@@ -52,8 +52,13 @@ export async function POST(request: NextRequest) {
       maxSize = 4 * 1024 * 1024; // 4MB
       const ext = file.name.split('.').pop() || 'jpg';
       fileName = `hero-${Date.now()}.${ext}`;
+    } else if (fileType === 'certificate') {
+      // Certificate PDF upload
+      allowedTypes = ['application/pdf'];
+      maxSize = 4 * 1024 * 1024; // 4MB
+      fileName = `certificate-${Date.now()}.pdf`;
     } else {
-      // PDF upload (for CV)
+      // CV PDF upload (default)
       allowedTypes = ['application/pdf'];
       maxSize = 4 * 1024 * 1024; // 4MB
       fileName = `cv-${Date.now()}.pdf`;

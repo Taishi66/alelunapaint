@@ -90,7 +90,7 @@ interface TextContent {
     skillsToolsTitle: string;
     skillsQuoteAuthor: string;
     skillCategories: SkillCategory[];
-    certifications: string[];
+    certifications: (string | { name: string; issuer?: string; date?: string; certificateUrl?: string; credentialId?: string; icon?: string })[];
     tools: string[];
     skillsQuote: string;
     softSkills: SoftSkill[];
@@ -250,6 +250,8 @@ export default function BackOffice() {
     const [cvUploadStatus, setCvUploadStatus] = useState<string>("");
     const [uploadingImage, setUploadingImage] = useState(false);
     const [imageUploadStatus, setImageUploadStatus] = useState<string>("");
+    const [uploadingCertificates, setUploadingCertificates] = useState<{ [key: number]: boolean }>({});
+    const [certificateUploadStatus, setCertificateUploadStatus] = useState<{ [key: number]: string }>({});
     const [showPreview, setShowPreview] = useState(false); // For mobile toggle
     const router = useRouter();
 
@@ -1791,39 +1793,228 @@ export default function BackOffice() {
                                 />
                             </div>
                         </div>
-                        <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <label className="block text-xs sm:text-sm font-medium text-brand-cream/90 mb-1.5 sm:mb-2">
-                                    Certifications (one per line)
+                        {/* Certifications - Enhanced Editor */}
+                        <div className="mb-6">
+                            <div className="flex justify-between items-center mb-3">
+                                <label className="block text-sm font-medium text-brand-cream/90">
+                                    Certifications
                                 </label>
-                                <textarea
-                                    value={textContent.certifications.join("\n")}
-                                    onChange={(e) =>
-                                        handleTextChange(
-                                            "certifications",
-                                            e.target.value.split("\n").filter((line) => line.trim()),
-                                        )
-                                    }
-                                    rows={6}
-                                    className="w-full px-3 py-3 sm:px-4 sm:py-3 md:px-4 md:py-3 text-sm md:text-base bg-white/10 backdrop-blur-sm border border-white/30 text-brand-cream placeholder:text-brand-cream/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-gold focus:border-transparent resize-none"
-                                />
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        const newCert = {
+                                            name: "New Certification",
+                                            issuer: "",
+                                            date: "",
+                                            certificateUrl: "",
+                                            credentialId: "",
+                                            icon: ""
+                                        };
+                                        handleTextChange("certifications", [...textContent.certifications, newCert]);
+                                    }}
+                                    className="px-3 py-1.5 bg-brand-gold/20 hover:bg-brand-gold/30 text-brand-gold rounded-lg text-xs font-medium transition-all"
+                                >
+                                    + Add Certification
+                                </button>
                             </div>
-                            <div>
-                                <label className="block text-xs sm:text-sm font-medium text-brand-cream/90 mb-1.5 sm:mb-2">
-                                    Tools (one per line)
-                                </label>
-                                <textarea
-                                    value={textContent.tools.join("\n")}
-                                    onChange={(e) =>
-                                        handleTextChange(
-                                            "tools",
-                                            e.target.value.split("\n").filter((line) => line.trim()),
-                                        )
-                                    }
-                                    rows={6}
-                                    className="w-full px-3 py-3 sm:px-4 sm:py-3 md:px-4 md:py-3 text-sm md:text-base bg-white/10 backdrop-blur-sm border border-white/30 text-brand-cream placeholder:text-brand-cream/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-gold focus:border-transparent resize-none"
-                                />
+                            <div className="space-y-3">
+                                {textContent.certifications.map((cert, index) => {
+                                    const certObj = typeof cert === 'string' ? { name: cert, issuer: '', date: '', certificateUrl: '', credentialId: '', icon: '' } : cert;
+                                    return (
+                                        <div key={index} className="bg-white/5 backdrop-blur-sm border border-white/20 rounded-xl p-4">
+                                            <div className="flex justify-between items-start mb-3">
+                                                <span className="text-xs font-medium text-brand-gold">Certification #{index + 1}</span>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        const updated = textContent.certifications.filter((_, i) => i !== index);
+                                                        handleTextChange("certifications", updated);
+                                                    }}
+                                                    className="text-xs text-red-400 hover:text-red-300"
+                                                >
+                                                    Remove
+                                                </button>
+                                            </div>
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                                <div className="md:col-span-2">
+                                                    <label className="block text-xs text-brand-cream/70 mb-1">Name *</label>
+                                                    <input
+                                                        type="text"
+                                                        value={certObj.name}
+                                                        onChange={(e) => {
+                                                            const updated = [...textContent.certifications];
+                                                            updated[index] = { ...certObj, name: e.target.value };
+                                                            handleTextChange("certifications", updated);
+                                                        }}
+                                                        className="w-full px-3 py-2 text-sm bg-white/10 border border-white/20 text-brand-cream rounded-lg focus:ring-2 focus:ring-brand-gold"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-xs text-brand-cream/70 mb-1">Issuing Organization</label>
+                                                    <input
+                                                        type="text"
+                                                        value={certObj.issuer || ''}
+                                                        onChange={(e) => {
+                                                            const updated = [...textContent.certifications];
+                                                            updated[index] = { ...certObj, issuer: e.target.value };
+                                                            handleTextChange("certifications", updated);
+                                                        }}
+                                                        placeholder="e.g., Coursera, LVMH..."
+                                                        className="w-full px-3 py-2 text-sm bg-white/10 border border-white/20 text-brand-cream placeholder:text-brand-cream/40 rounded-lg focus:ring-2 focus:ring-brand-gold"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-xs text-brand-cream/70 mb-1">Date</label>
+                                                    <input
+                                                        type="text"
+                                                        value={certObj.date || ''}
+                                                        onChange={(e) => {
+                                                            const updated = [...textContent.certifications];
+                                                            updated[index] = { ...certObj, date: e.target.value };
+                                                            handleTextChange("certifications", updated);
+                                                        }}
+                                                        placeholder="e.g., January 2024"
+                                                        className="w-full px-3 py-2 text-sm bg-white/10 border border-white/20 text-brand-cream placeholder:text-brand-cream/40 rounded-lg focus:ring-2 focus:ring-brand-gold"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-xs text-brand-cream/70 mb-1">Certificate PDF</label>
+                                                    <div className="flex gap-2">
+                                                        <input
+                                                            type="file"
+                                                            accept=".pdf"
+                                                            onChange={async (e) => {
+                                                                const file = e.target.files?.[0];
+                                                                if (!file) return;
+
+                                                                if (file.type !== 'application/pdf') {
+                                                                    setCertificateUploadStatus(prev => ({ ...prev, [index]: 'Only PDF files are allowed' }));
+                                                                    return;
+                                                                }
+
+                                                                if (file.size > 4 * 1024 * 1024) {
+                                                                    setCertificateUploadStatus(prev => ({ ...prev, [index]: 'File size must be less than 4MB' }));
+                                                                    return;
+                                                                }
+
+                                                                setUploadingCertificates(prev => ({ ...prev, [index]: true }));
+                                                                setCertificateUploadStatus(prev => ({ ...prev, [index]: '' }));
+
+                                                                try {
+                                                                    const formData = new FormData();
+                                                                    formData.append('file', file);
+                                                                    formData.append('type', 'certificate');
+
+                                                                    const token = localStorage.getItem('accessToken');
+                                                                    const response = await fetch('/api/upload', {
+                                                                        method: 'POST',
+                                                                        headers: {
+                                                                            'Authorization': `Bearer ${token}`,
+                                                                        },
+                                                                        body: formData,
+                                                                    });
+
+                                                                    const data = await response.json();
+                                                                    if (data.success && data.data?.path) {
+                                                                        const updated = [...textContent.certifications];
+                                                                        updated[index] = { ...certObj, certificateUrl: data.data.path };
+                                                                        handleTextChange("certifications", updated);
+                                                                        setCertificateUploadStatus(prev => ({ ...prev, [index]: 'Certificate uploaded successfully!' }));
+                                                                    } else {
+                                                                        setCertificateUploadStatus(prev => ({ ...prev, [index]: data.message || 'Upload failed' }));
+                                                                    }
+                                                                } catch (error) {
+                                                                    console.error('Upload error:', error);
+                                                                    setCertificateUploadStatus(prev => ({ ...prev, [index]: 'Failed to upload certificate' }));
+                                                                } finally {
+                                                                    setUploadingCertificates(prev => ({ ...prev, [index]: false }));
+                                                                }
+                                                            }}
+                                                            className="hidden"
+                                                            id={`cert-upload-${index}`}
+                                                        />
+                                                        <label
+                                                            htmlFor={`cert-upload-${index}`}
+                                                            className={`flex-1 px-3 py-2 text-sm bg-brand-gold/20 hover:bg-brand-gold/30 border border-brand-gold/30 text-brand-gold rounded-lg cursor-pointer text-center transition-all ${uploadingCertificates[index] ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                                        >
+                                                            {uploadingCertificates[index] ? 'Uploading...' : certObj.certificateUrl ? '✓ Uploaded' : 'Upload PDF'}
+                                                        </label>
+                                                        {certObj.certificateUrl && !uploadingCertificates[index] && (
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => {
+                                                                    const updated = [...textContent.certifications];
+                                                                    updated[index] = { ...certObj, certificateUrl: '' };
+                                                                    handleTextChange("certifications", updated);
+                                                                    setCertificateUploadStatus(prev => ({ ...prev, [index]: '' }));
+                                                                }}
+                                                                className="px-3 py-2 text-sm bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded-lg"
+                                                            >
+                                                                Remove
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                    {certificateUploadStatus[index] && (
+                                                        <p className={`text-xs mt-1 ${certificateUploadStatus[index].includes('success') ? 'text-green-400' : 'text-red-400'}`}>
+                                                            {certificateUploadStatus[index]}
+                                                        </p>
+                                                    )}
+                                                    {certObj.certificateUrl && !certificateUploadStatus[index] && (
+                                                        <p className="text-xs text-brand-cream/50 mt-1 truncate">{certObj.certificateUrl}</p>
+                                                    )}
+                                                </div>
+                                                <div>
+                                                    <label className="block text-xs text-brand-cream/70 mb-1">Credential ID</label>
+                                                    <input
+                                                        type="text"
+                                                        value={certObj.credentialId || ''}
+                                                        onChange={(e) => {
+                                                            const updated = [...textContent.certifications];
+                                                            updated[index] = { ...certObj, credentialId: e.target.value };
+                                                            handleTextChange("certifications", updated);
+                                                        }}
+                                                        placeholder="Optional ID"
+                                                        className="w-full px-3 py-2 text-sm bg-white/10 border border-white/20 text-brand-cream placeholder:text-brand-cream/40 rounded-lg focus:ring-2 focus:ring-brand-gold"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-xs text-brand-cream/70 mb-1">Icon (emoji)</label>
+                                                    <input
+                                                        type="text"
+                                                        value={certObj.icon || ''}
+                                                        onChange={(e) => {
+                                                            const updated = [...textContent.certifications];
+                                                            updated[index] = { ...certObj, icon: e.target.value };
+                                                            handleTextChange("certifications", updated);
+                                                        }}
+                                                        placeholder="🏆"
+                                                        maxLength={2}
+                                                        className="w-full px-3 py-2 text-sm bg-white/10 border border-white/20 text-brand-cream placeholder:text-brand-cream/40 rounded-lg focus:ring-2 focus:ring-brand-gold"
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
                             </div>
+                        </div>
+
+                        {/* Tools Section */}
+                        <div>
+                            <label className="block text-xs sm:text-sm font-medium text-brand-cream/90 mb-1.5 sm:mb-2">
+                                Tools & Platforms (one per line)
+                            </label>
+                            <textarea
+                                value={textContent.tools.join("\n")}
+                                onChange={(e) =>
+                                    handleTextChange(
+                                        "tools",
+                                        e.target.value.split("\n").filter((line) => line.trim()),
+                                    )
+                                }
+                                rows={6}
+                                className="w-full px-3 py-3 sm:px-4 sm:py-3 md:px-4 md:py-3 text-sm md:text-base bg-white/10 backdrop-blur-sm border border-white/30 text-brand-cream placeholder:text-brand-cream/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-gold focus:border-transparent resize-none"
+                            />
                         </div>
                     </div>
                 );
@@ -3080,35 +3271,46 @@ export default function BackOffice() {
                                                         </div>
                                                     )}
 
-                                                    {/* Certifications & Tools */}
-                                                    <div className="grid md:grid-cols-2 gap-3 mb-6">
-                                                        {/* Certifications */}
-                                                        <div className="bg-brand-cream/5 backdrop-blur-sm rounded-xl p-4 border border-brand-gold/20">
-                                                            <h3 className="font-serif text-base text-brand-gold mb-3 flex items-center">
-                                                                {textContent.skillsCertificationsTitle || '🏆 Certifications'}
-                                                            </h3>
-                                                            <div className="space-y-2">
-                                                                {textContent.certifications.slice(0, 4).map((cert, index) => (
-                                                                    <div key={index} className="flex items-center space-x-2">
-                                                                        <div className="w-1.5 h-1.5 bg-brand-gold rounded-full"></div>
-                                                                        <span className="text-xs">{cert}</span>
+                                                    {/* Certifications - New Design Preview */}
+                                                    <div className="mb-6">
+                                                        <h3 className="font-serif text-lg text-brand-gold mb-4 text-center">
+                                                            🏆 {(textContent.skillsCertificationsTitle || 'Certifications').replace('🏆', '').trim()}
+                                                        </h3>
+                                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                                                            {textContent.certifications.slice(0, 3).map((cert, index) => {
+                                                                const certObj = typeof cert === 'string' ? { name: cert } : cert;
+                                                                return (
+                                                                    <div key={index} className="bg-brand-cream/5 backdrop-blur-sm rounded-xl p-4 border border-brand-gold/20">
+                                                                        {certObj.icon && (
+                                                                            <div className="text-2xl mb-2">{certObj.icon}</div>
+                                                                        )}
+                                                                        <h4 className="font-serif text-sm text-brand-cream mb-2 leading-snug">{certObj.name}</h4>
+                                                                        <div className="text-xs text-brand-cream/70 space-y-1">
+                                                                            <div>• {certObj.issuer || 'Professional Certification'}</div>
+                                                                            {certObj.date && <div>• {certObj.date}</div>}
+                                                                        </div>
+                                                                        {certObj.certificateUrl && (
+                                                                            <div className="mt-3 px-2 py-1 bg-brand-gold/20 rounded text-center text-xs text-brand-gold">
+                                                                                📥 Download
+                                                                            </div>
+                                                                        )}
                                                                     </div>
-                                                                ))}
-                                                            </div>
+                                                                );
+                                                            })}
                                                         </div>
+                                                    </div>
 
-                                                        {/* Tools & Technologies */}
-                                                        <div className="bg-brand-cream/5 backdrop-blur-sm rounded-xl p-4 border border-brand-gold/20">
-                                                            <h3 className="font-serif text-base text-brand-gold mb-3 flex items-center">
-                                                                {textContent.skillsToolsTitle || '🛠️ Tools & Platforms'}
-                                                            </h3>
-                                                            <div className="grid grid-cols-2 gap-2">
-                                                                {textContent.tools.slice(0, 6).map((tool, index) => (
-                                                                    <div key={index} className="bg-brand-gold/10 rounded-lg px-2 py-1.5 text-center text-xs font-medium">
-                                                                        {tool}
-                                                                    </div>
-                                                                ))}
-                                                            </div>
+                                                    {/* Tools & Technologies */}
+                                                    <div className="bg-brand-cream/5 backdrop-blur-sm rounded-xl p-4 border border-brand-gold/20">
+                                                        <h3 className="font-serif text-base text-brand-gold mb-3 text-center">
+                                                            🛠️ {(textContent.skillsToolsTitle || 'Tools & Platforms').replace('🛠️', '').replace('🔧', '').trim()}
+                                                        </h3>
+                                                        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                                                            {textContent.tools.slice(0, 4).map((tool, index) => (
+                                                                <div key={index} className="bg-brand-gold/10 rounded-lg px-2 py-1.5 text-center text-xs font-medium">
+                                                                    {tool}
+                                                                </div>
+                                                            ))}
                                                         </div>
                                                     </div>
 
@@ -3136,34 +3338,48 @@ export default function BackOffice() {
                                                     <div className="w-12 sm:w-16 h-1 bg-brand-gold mx-auto"></div>
                                                 </div>
 
-                                                {/* Achievements grid - responsive */}
-                                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5 md:gap-6 max-w-6xl mx-auto">
-                                                    {textContent.achievements.map((achievement, idx) => (
-                                                        <div
-                                                            key={idx}
-                                                            className="group relative bg-gradient-to-br from-brand-cream/5 to-brand-gold/5 backdrop-blur-sm rounded-2xl p-4 sm:p-5 md:p-6 border border-brand-gold/20 hover:border-brand-gold/40 transition-all duration-300"
-                                                        >
-                                                            {/* Icon */}
-                                                            {achievement.icon && (
-                                                                <div className="text-3xl sm:text-4xl mb-3 sm:mb-4 opacity-80 group-hover:scale-110 transition-transform duration-300">
-                                                                    {achievement.icon}
+                                                {/* Achievements grid - centered with max 2 columns */}
+                                                <div className="flex justify-center">
+                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 md:gap-8 max-w-5xl w-full">
+                                                        {textContent.achievements.map((achievement, idx) => (
+                                                            <div
+                                                                key={idx}
+                                                                className="group relative bg-gradient-to-br from-brand-cream/5 to-brand-gold/5 backdrop-blur-sm rounded-2xl p-6 sm:p-8 border border-brand-gold/20 hover:border-brand-gold/50 transition-all duration-500 hover:transform hover:-translate-y-1 shadow-lg hover:shadow-xl overflow-hidden"
+                                                            >
+                                                                {/* Shimmer effect on hover */}
+                                                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-brand-gold/10 to-transparent translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000"></div>
+
+                                                                {/* Content wrapper */}
+                                                                <div className="relative z-10">
+                                                                    {/* Icon and Metric Row */}
+                                                                    <div className="flex items-center gap-4 mb-6">
+                                                                        {/* Icon - only if specified */}
+                                                                        {achievement.icon && (
+                                                                            <div className="text-4xl sm:text-5xl group-hover:scale-110 transition-transform duration-300 flex-shrink-0">
+                                                                                {achievement.icon}
+                                                                            </div>
+                                                                        )}
+
+                                                                        {/* Metric */}
+                                                                        <div className="font-serif text-3xl sm:text-4xl md:text-5xl font-bold text-brand-gold leading-none">
+                                                                            {achievement.metric}
+                                                                        </div>
+                                                                    </div>
+
+                                                                    {/* Description */}
+                                                                    <p className="text-brand-cream/90 text-sm sm:text-base leading-relaxed">
+                                                                        {achievement.description}
+                                                                    </p>
+
+                                                                    {/* Decorative accent */}
+                                                                    <div className="mt-4 sm:mt-6 h-1 w-12 sm:w-16 bg-gradient-to-r from-brand-gold/50 to-transparent rounded-full"></div>
                                                                 </div>
-                                                            )}
 
-                                                            {/* Metric */}
-                                                            <div className="font-serif text-3xl sm:text-4xl md:text-5xl font-bold text-brand-gold mb-2 sm:mb-3 md:mb-4 leading-none">
-                                                                {achievement.metric}
+                                                                {/* Hover glow effect */}
+                                                                <div className="absolute -bottom-2 -right-2 w-24 h-24 bg-brand-gold/10 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                                                             </div>
-
-                                                            {/* Description */}
-                                                            <h3 className="text-sm sm:text-base font-semibold text-brand-cream leading-snug">
-                                                                {achievement.description}
-                                                            </h3>
-
-                                                            {/* Decorative line */}
-                                                            <div className="h-1 w-8 bg-brand-gold/50 rounded-full mt-2 sm:mt-3"></div>
-                                                        </div>
-                                                    ))}
+                                                        ))}
+                                                    </div>
                                                 </div>
                                             </div>
                                         )}

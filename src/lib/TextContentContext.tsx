@@ -29,6 +29,15 @@ interface SoftSkill {
     icon: string;
 }
 
+interface Certification {
+    name: string;
+    issuer?: string;
+    date?: string;
+    certificateUrl?: string;
+    credentialId?: string;
+    icon?: string;
+}
+
 interface TextContent {
     heroTitle: string;
     heroSubtitle: string;
@@ -63,7 +72,7 @@ interface TextContent {
     skillsSubtitle: string;
     skillsDescription: string;
     skillCategories: SkillCategory[];
-    certifications: string[];
+    certifications: (string | Certification)[];
     tools: string[];
     skillsQuote: string;
     skillsBadge: string;
