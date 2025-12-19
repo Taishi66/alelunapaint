@@ -27,7 +27,7 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://nadialuna.com";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
-  title: "Nadia Luna — Product Owner | Retail & Digital Transformation",
+  title: "Nadia Luna",
   description: "Product Owner with 10+ years of leadership in luxury retail — I design product & experience that scale revenue and loyalty.",
   keywords: "Product Owner, Luxury Retail, Digital Transformation, Product Strategy, UX Design, Agile, Product Management",
   authors: [{ name: "Nadia Luna" }],
